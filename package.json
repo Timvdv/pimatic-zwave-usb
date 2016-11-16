@@ -1,0 +1,35 @@
+{
+  "name": "pimatic-zwave-usb",
+  "description": "This plugin will communicate with a z-wave USB stick.",
+  "author": {
+    "name": "Tim van de Vathorst",
+    "email": "infi@timvandevathorst.nl",
+    "url": "http://timvandevathorst.nl"
+  },
+  "main": "zwave-plugin",
+  "files": [
+    "zwave-plugin.coffee",
+    "README.md",
+    "zwave-plugin-config-schema.coffee",
+    "device-config-schema.coffee"
+  ],
+  "dependencies": {
+    "openzwave-shared": "^1.2.0",
+    "pimatic-plugin-commons": "^0.9.3"
+  },
+  "version": "0.8.1",
+  "homepage": "http://timvandevathorst.nl",
+  "private": false,
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/Timvdv/pimatic-zwave.git"
+  },
+  "configSchema": "zwave-plugin-config-schema.coffee",
+  "peerDependencies": {
+    "pimatic": "0.9.*"
+  },
+  "engines": {
+    "node": ">0.8.x",
+    "npm": ">1.1.x"
+  }
+}

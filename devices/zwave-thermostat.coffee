@@ -17,9 +17,10 @@ module.exports = (env) ->
 
       @id = @config.id
       @name = @config.name
+      @node = @config.node
       
       @responseHandler = @_createResponseHandler()
-      @plugin.protocolHandler.on 'value changed', @responseHandler
+      @plugin.protocolHandler.on 'response', @responseHandler
       
       @_temperatureSetpoint = lastState?.temperatureSetpoint?.value
       @_battery = lastState?.battery?.value or "--"
@@ -27,54 +28,52 @@ module.exports = (env) ->
 
       super()
 
-      _createResponseHandler: () ->
-        return (nodeid, commandclass, valueId) =>
-          console.log("resHandler:", nodeid)
-          #this is where we check if values in the network are
-          #manually changed, then we update it in pimatic
-          #if(@debug)
-          env.logger.info("(custom) updated: " + nodeid)
-          env.logger.info("(custom) command class: " + commandclass)
-          env.logger.info("(custom) valueId:" + JSON.stringify(valueId))
+    _createResponseHandler: () ->
+      return (response) =>
+        
+        _node = @node == response.nodeid ? nodeid : null
+        data = response.zwave_response
 
-          #Set nodeid if it's the same one as you added
-          _node = @config.node == nodeid ? nodeid : null
-          data = valueId
+        if _node?
+          #Update the temperture
+          @_base.debug "data:", @_temperatureSetpoint, data.class_id
 
-          if _node?
-            #Update the temperture
-            if data.value is not @_temperatureSetpoint and commandclass == 67
-              @_setSetpoint(data.value)
+          if data.value is not @_temperatureSetpoint and data.class_id == 67
+            @_base.debug "Response", response
+            @_base.debug "update temperture", data.value
+            @_setSetpoint(data.value)
 
-            #Update the battery
-            if data.value is not @_battery and commandclass == 128
-              @_setBattery(data.battery)
+          @_setSynced(true)
 
-      _callbackHandler: () ->
-        return (response) =>
-          console.log('wut is deze?? (_callbackHandler in ZwaveThermostat)')
+          # #Update the battery
+          # if data.value is not @_battery and data.class_id == 128
+          #   @_setBattery(data.battery)
 
-      destroy: () ->
-        @_base.cancelUpdate()
+    _callbackHandler: () ->
+      return (response) =>
+        console.log('wut is deze?? (_callbackHandler in ZwaveThermostat)')
 
-        #Does this remove all 'value changed' events? Because I also use it with other devices
-        @plugin.protocolHandler.removeListener 'value changed', @responseHandler
-        super()
+    destroy: () ->
+      @_base.cancelUpdate()
 
-      changeTemperatureTo: (temperatureSetpoint) ->
-        if @_temperatureSetpoint is temperatureSetpoint then return Promise.resolve()
+      #Does this remove all 'response' events? Because I also use it with other devices?
+      @plugin.protocolHandler.removeListener 'response', @responseHandler
+      super()
 
-        #make temperature a whole number
-        temp = Math.round(value*10)
+    changeTemperatureTo: (temperatureSetpoint) =>
+      if @_temperatureSetpoint is temperatureSetpoint then return Promise.resolve()
 
-        #create 2 byte buffer of the value
-        tempByte1 = Math.floor(temp/255)
-        tempByte2 = Math.round(temp-(255*tempByte1))
-        temp = new Buffer([tempByte1, tempByte2])
+      #make temperature a whole number
+      temp = Math.round(value*10)
 
-        #tell protocol to set value..
-        #@plugin.protocolHandler.setValue({ node_id:_node, class_id: 67, instance:1, index:0}, temp)
+      #create 2 byte buffer of the value
+      tempByte1 = Math.floor(temp/255)
+      tempByte2 = Math.round(temp-(255*tempByte1))
+      temp = new Buffer([tempByte1, tempByte2])
 
-        return @_setSetpoint(temperatureSetpoint)
+      #tell protocol to set value..
+      @plugin.protocolHandler.sendRequest({ node_id: @node, class_id: 67, instance:1, index:1}, temp)
 
-      getTemperature: -> Promise.resolve(@_temperatureSetpoint)
+      return @_setSetpoint(temperatureSetpoint)
+
+    getTemperature: -> Promise.resolve(@_temperatureSetpoint)

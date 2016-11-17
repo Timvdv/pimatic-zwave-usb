@@ -25,62 +25,42 @@ module.exports = (env) ->
       @zwave.connect(@usb)
 
       #stop zwave and return an error if the driver fails
-      @zwave.on 'driver failed', () ->
-        env.logger.error('failed to start z-wave usb driver')
+      @zwave.on 'driver failed', () =>
+        @base.error 'failed to start z-wave usb driver'
         @zwave.disconnect()
 
-      @zwave.on "driver ready", (homeid) ->
-        console.log('scanning homeid=0x%s...', homeid.toString(16))
+      @zwave.on "driver ready", (homeid) =>
+        @base.debug 'scanning homeid=0x', homeid.toString(16)
 
-      @zwave.on "notification", (nodeid, notif) ->
+      @zwave.on "notification", (nodeid, notif) =>
         switch notif
-          when 0 then console.log('node%d: message complete', nodeid)
-          when 1 then console.log('node%d: timeout', nodeid)
-          when 2 then console.log('node%d: nop', nodeid)
-          when 3 then console.log('node%d: node awake', nodeid)
-          when 4 then console.log('node%d: node sleep', nodeid)
-          when 5 then console.log('node%d: node dead', nodeid)
-          when 6 then console.log('node%d: node alive', nodeid)
+          when 0 then @base.debug 'node', nodeid, ': message complete'
+          when 1 then @base.debug 'node', nodeid, ': timeout'
+          #when 2 then @base.debug 'node', nodeid, ': nop'
+          when 3 then @base.debug 'node', nodeid, ': node awake'
+          when 4 then @base.debug 'node', nodeid, ': node sleep'
+          when 5 then @base.debug 'node', nodeid, ': node dead'
+          when 6 then @base.debug 'node', nodeid, ': node alive'
 
-    pause: (ms=50) ->
+      @zwave.on "value changed", (nodeid, commandclass, valueId) =>
+        @base.debug "custom: value changed:", nodeid, commandclass, valueId
+        @_triggerResponse valueId, nodeid
+
+    _triggerResponse: (zwave_response, nodeid) ->
+      @emit 'response',
+        nodeid: nodeid
+        zwave_response: zwave_response
+
+    pause: (ms=50) =>
       @base.debug "Pausing:", ms, "ms"
       Promise.delay ms
 
-    _triggerResponse: (command, param) ->
-      # emulate the regex matcher of telnet transport - should be refactored
-      @emit 'response',
-        matchedResults: [
-          "#{command}#{param}"
-          "#{command}",
-          "#{param}"
-          index:0
-          input: "#{command}#{param}"
-        ]
-        command: command
-        param: param
-        message: "#{command}#{param}"
-
     _requestUpdate: (command, param="") =>
-      @base.debug "http://#{@host}:#{@port}/goform/#{@_mapZoneToUrlPath command}XmlStatusLite.xml"
-      return rest.get "http://#{@host}:#{@port}/goform/#{@_mapZoneToUrlPath command}XmlStatusLite.xml"
-      .then (response) =>
-        if response.data.length isnt 0
-          @base.debug response.data
-          parseXmlString response.data
-          .then (dom) =>
-            prefix = @_mapZoneToCommandPrefix command
-            @_triggerResponse "#{prefix}MU", dom.item.Mute[0].value[0].toUpperCase()
-            @_triggerResponse "#{prefix}PW", dom.item.Power[0].value[0].toUpperCase()
-            volume = parseInt(dom.item.MasterVolume[0].value[0], 10)
-            if not isNaN volume
-              if dom.item.VolumeDisplay[0].value[0].toUpperCase() is 'ABSOLUTE'
-                volume += 80
-              @_triggerResponse "#{prefix}MV", volume
-            @_triggerResponse "#{prefix}SI", dom.item.InputFuncSelect[0].value[0].toUpperCase()
-        else
-          throw new Error "Empty result received for status request"
-      .finally =>
-        delete @scheduledUpdates[@_mapZoneToObjectKey command] if @scheduledUpdates[@_mapZoneToObjectKey command]?
+      @base.debug "Send command: #{command} to #{@node}"
+
+      return new Promise (resolve, reject) =>
+        @base.debug("request update!!")
+        resolve()
 
     _scheduleUpdate: (command, param="", immediate) ->
       timeout=1500
@@ -94,17 +74,7 @@ module.exports = (env) ->
       @base.scheduleUpdate @_requestUpdate, timeout, command, param
       return Promise.resolve()
 
-    sendRequest: (command, param="", immediate=false) ->
+    sendRequest: (command, param="", immediate=false) =>
       return new Promise (resolve, reject) =>
-        if param isnt '?'
-          @base.debug "http://#{@host}:#{@port}/goform/formiPhoneAppDirect.xml?#{command}#{param}"
-          promise = rest.get "http://#{@host}:#{@port}/goform/formiPhoneAppDirect.xml?#{command}#{param}"
-          .then =>
-            @_triggerResponse command, param
-        else
-          promise = @_scheduleUpdate command, param, immediate
-
-        promise.then =>
-          resolve()
-        .catch (errorResult) =>
-          reject errorResult.error
+        @zwave.setValue({ node_id:_node, class_id: 67, instance:1, index:0}, temp)
+        resolve()

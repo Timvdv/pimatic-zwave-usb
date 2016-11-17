@@ -18,6 +18,10 @@ module.exports = (env) ->
       @id = @config.id
       @name = @config.name
       @node = @config.node
+      @value_id = null
+
+      @_mode = "auto"
+      @_setSynced(false)
       
       @responseHandler = @_createResponseHandler()
       @plugin.protocolHandler.on 'response', @responseHandler
@@ -30,27 +34,30 @@ module.exports = (env) ->
 
     _createResponseHandler: () ->
       return (response) =>
-        
-        _node = @node == response.nodeid ? nodeid : null
+        _node = if @node is response.nodeid then response.nodeid else null
         data = response.zwave_response
 
         if _node?
           #Update the temperture
           @_base.debug "data:", @_temperatureSetpoint, data.class_id
+          @value_id = data.value_id
 
-          if data.value is not @_temperatureSetpoint and data.class_id == 67
+          if data.class_id is 67
             @_base.debug "Response", response
             @_base.debug "update temperture", data.value
-            @_setSetpoint(data.value)
+            @_setSetpoint(parseInt(data.value))
+            @_setValve(parseInt(data.value) / 40 * 100) #40 == 100%
+            @_setSynced(true)
 
-          @_setSynced(true)
-
-          # #Update the battery
-          # if data.value is not @_battery and data.class_id == 128
-          #   @_setBattery(data.battery)
+          if data.class_id is 128
+            @_base.debug "Response", response
+            @_base.debug "Update battery", data.value
+            battery_value = if parseInt(data.value) == 0 then 'LOW' else 'OK'
+            @_setBattery(battery_value)
 
     _callbackHandler: () ->
       return (response) =>
+        #@TODO: ???
         console.log('wut is deze?? (_callbackHandler in ZwaveThermostat)')
 
     destroy: () ->
@@ -63,17 +70,11 @@ module.exports = (env) ->
     changeTemperatureTo: (temperatureSetpoint) =>
       if @_temperatureSetpoint is temperatureSetpoint then return Promise.resolve()
 
-      #make temperature a whole number
-      temp = Math.round(value*10)
+      if(@value_id)
+        @plugin.protocolHandler.sendRequest({ value_id: @value_id, node_id: @node, class_id: 67, instance:1, index:1}, parseFloat(temperatureSetpoint).toFixed(2))
+      else
+        @_base.info "Please wake up ", @name, " device has no value_id yet"
 
-      #create 2 byte buffer of the value
-      tempByte1 = Math.floor(temp/255)
-      tempByte2 = Math.round(temp-(255*tempByte1))
-      temp = new Buffer([tempByte1, tempByte2])
-
-      #tell protocol to set value..
-      @plugin.protocolHandler.sendRequest({ node_id: @node, class_id: 67, instance:1, index:1}, temp)
-
-      return @_setSetpoint(temperatureSetpoint)
+      return @_setSetpoint(parseInt(temperatureSetpoint))
 
     getTemperature: -> Promise.resolve(@_temperatureSetpoint)

@@ -43,6 +43,7 @@ module.exports = (env) ->
         @framework.deviceManager.discoverMessage 'pimatic-zwave-usb', 'Searching for zwave devices'
         for device in deviceConfigTemplates
           matched = @framework.deviceManager.devicesConfig.some (element, iterator) =>
+            #@TODO: Autodiscovery
             console.log element.class is device.class, element.class, device.class
             element.class is device.class
 

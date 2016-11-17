@@ -44,7 +44,9 @@ module.exports = (env) ->
 
       @zwave.on "value changed", (nodeid, commandclass, valueId) =>
         @base.debug "custom: value changed:", nodeid, commandclass, valueId
-        @_triggerResponse valueId, nodeid
+        
+        if valueId
+          @_triggerResponse valueId, nodeid
 
     _triggerResponse: (zwave_response, nodeid) ->
       @emit 'response',
@@ -62,6 +64,7 @@ module.exports = (env) ->
         @base.debug("request update!!")
         resolve()
 
+    #@TODO: remove this? I probably don't need it
     _scheduleUpdate: (command, param="", immediate) ->
       timeout=1500
       if not @scheduledUpdates[@_mapZoneToObjectKey command]?
@@ -74,7 +77,7 @@ module.exports = (env) ->
       @base.scheduleUpdate @_requestUpdate, timeout, command, param
       return Promise.resolve()
 
-    sendRequest: (command, param="", immediate=false) =>
+    sendRequest: (command, temp) =>
       return new Promise (resolve, reject) =>
-        @zwave.setValue({ node_id:_node, class_id: 67, instance:1, index:0}, temp)
+        @zwave.setValue(command, temp)
         resolve()

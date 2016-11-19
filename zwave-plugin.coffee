@@ -11,9 +11,12 @@ module.exports = (env) ->
 
   deviceConfigTemplates = [
     {
-      "name": "zwave thermostat",
-      "node": 0,
-      "class": "ZwaveThermostat",
+      "name": "ZWave-usb Thermostat",
+      "class": "ZwaveThermostat"
+    },
+    {
+      "name": "ZWave-usb Power Switch",
+      "class": "ZwavePowerSwitch"
     }
   ]
 
@@ -41,19 +44,38 @@ module.exports = (env) ->
       # auto-discovery
       @framework.deviceManager.on('discover', (eventData) =>
         @framework.deviceManager.discoverMessage 'pimatic-zwave-usb', 'Searching for zwave devices'
-        for device in deviceConfigTemplates
+
+        @base.debug "Eventdata:", eventData
+        @base.debug "devices: ", @protocolHandler.getDevices()
+
+        for device in @protocolHandler.getDevices()
+
+          #If the device is already added: don't show
           matched = @framework.deviceManager.devicesConfig.some (element, iterator) =>
-            #@TODO: Autodiscovery
-            console.log element.class is device.class, element.class, device.class
-            element.class is device.class
+            element.node is device?.nodeid
 
           if not matched
-            process.nextTick @_discoveryCallbackHandler('pimatic-zwave-usb', device.name, device)
-      )
+            deviceToText = device?.product
 
-    _discoveryCallbackHandler: (pluginName, deviceName, deviceConfig) ->
-      return () =>
-        @framework.deviceManager.discoveredDevice pluginName, deviceName, deviceConfig
+            # convert spaces to -
+            id = deviceToText.replace(/(\s)/g, '-').toLowerCase()
+
+            deviceClass = "ZwavePowerSwitch"
+
+            if device?.classes["67"]
+              deviceClass = "ZwaveThermostat"
+
+            config = {
+              id: id
+              class: deviceClass,
+              name: deviceToText,
+              node: device?.nodeid
+            }
+            
+            @framework.deviceManager.discoveredDevice(
+              'pimatic-zwave-usb', "Presence of #{deviceToText}", config
+            )
+      )
 
     _callbackHandler: (className, classType) ->
       # this closure is required to keep the className and classType context as part of the iteration

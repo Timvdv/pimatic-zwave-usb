@@ -5,11 +5,7 @@ module.exports = (env) ->
   Promise = env.require 'bluebird'
   _ = env.require 'lodash'
   commons = require('pimatic-plugin-commons')(env)
-
-  # Todo.. Implement last state
-  #return @_lastAction
-  #valueId:{"value_id":"4-67-1-1","node_id":4,"class_id":67,"type":"decimal","genre":"user","instance":1,"index":1,"label":"Heating 1","units":"C","help":"","read_only":false,"write_only":false,"is_polled":false,"min":0,"max":0,"value":"18.00"}
-
+  
   class ZwaveThermostat extends env.devices.HeatingThermostat
     constructor: (@config, @plugin, lastState) ->
       @_base = commons.base @, @config.class
@@ -58,12 +54,10 @@ module.exports = (env) ->
     _callbackHandler: () ->
       return (response) =>
         #@TODO: ???
-        console.log('wut is deze?? (_callbackHandler in ZwaveThermostat)')
+        console.log('what is this.. when does it happen?? (_callbackHandler in ZwaveThermostat)')
 
     destroy: () ->
       @_base.cancelUpdate()
-
-      #Does this remove all 'response' events? Because I also use it with other devices?
       @plugin.protocolHandler.removeListener 'response', @responseHandler
       super()
 
@@ -71,7 +65,7 @@ module.exports = (env) ->
       if @_temperatureSetpoint is temperatureSetpoint then return Promise.resolve()
 
       if(@value_id)
-        @plugin.protocolHandler.sendRequest({ value_id: @value_id, node_id: @node, class_id: 67, instance:1, index:1}, parseFloat(temperatureSetpoint).toFixed(2))
+        @plugin.protocolHandler.sendRequest({ value_id: @value_id, node_id: @node, class_id: 67, instance:1, index:1}, parseFloat(temperatureSetpoint).toFixed(2), "thermostat")
       else
         @_base.info "Please wake up ", @name, " device has no value_id yet"
 

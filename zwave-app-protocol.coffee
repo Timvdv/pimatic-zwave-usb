@@ -3,6 +3,8 @@
 
 module.exports = (env) ->
   Promise = env.require 'bluebird'
+  _ = env.require 'lodash'
+
   commons = require('pimatic-plugin-commons')(env)
 
   # Include open-zwave lib
@@ -17,9 +19,11 @@ module.exports = (env) ->
       @on "newListener", =>
         @base.debug "Status response event listeners: #{1 + @listenerCount 'response'}"
 
+      @nodes = []
+      @deviceDiscovery = []
+      
       @zwave = new ZWave({
-        Logging: false, #logs to file
-        ConsoleOutput: false #logs to console
+        ConsoleOutput: @debug
       })
 
       @zwave.connect(@usb)
@@ -42,11 +46,69 @@ module.exports = (env) ->
           when 5 then @base.debug 'node', nodeid, ': node dead'
           when 6 then @base.debug 'node', nodeid, ': node alive'
 
-      @zwave.on "value changed", (nodeid, commandclass, valueId) =>
-        @base.debug "custom: value changed:", nodeid, commandclass, valueId
+      @zwave.on "node added", (nodeid) =>
+        #@base.debug('=================== NODE ADDED! ====================')
+        @nodes[nodeid] = {
+          nodeid: nodeid
+          manufacturer: ''
+          manufacturerid: ''
+          product: ''
+          producttype: ''
+          productid: ''
+          type: ''
+          name: ''
+          loc: ''
+          classes: {}
+          ready: false
+        }
+
+      @zwave.on "value added", (nodeid, commandclass, value) =>
+
+        @nodes[nodeid]?.classes[commandclass] = value
+
+        #@base.debug "node: ", @nodes[nodeid]
+        #@base.debug "nodes: ", @nodes
+      
+
+      @zwave.on "value changed", (nodeid, commandclass, value) =>
         
-        if valueId
-          @_triggerResponse valueId, nodeid
+        #this should probably handled in the device class -> always trigger response
+        switch parseInt(commandclass)
+          when 37 or 67
+            @_triggerResponse(value, nodeid)
+            @base.debug "custom: value changed: #{nodeid}, #{commandclass} value:", value
+
+        if @nodes[nodeid]?.ready
+          for node in @nodes[nodeid]?.classes
+            if node.index is value.index
+              node.index = value
+
+      @zwave.on "node ready", (nodeid, nodeinfo) =>
+        if !nodeinfo
+          return @base.debug "node: ", nodeid, " has no node information"
+
+        @base.debug "info: ", nodeinfo
+        @nodes[nodeid] = {
+          nodeid: nodeid
+          manufacturer: nodeinfo.manufacturer
+          manufacturerid: nodeinfo.manufacturerid
+          product: nodeinfo.product
+          producttype: nodeinfo.producttype
+          productid: nodeinfo.productid
+          type: nodeinfo.type
+          name: nodeinfo.name
+          loc: nodeinfo.loc
+          classes: @nodes[nodeid].classes
+          ready: true
+        }
+
+        for commandClass in @nodes[nodeid]?.classes
+          @base.error "Commandclass: ",commandClass
+          switch commandClass
+            when 0x25 or 0x26 or 0x27
+              @zwave.enablePoll(nodeid, commandClass)
+
+        @deviceDiscovery.push(@nodes[nodeid])
 
     _triggerResponse: (zwave_response, nodeid) ->
       @emit 'response',
@@ -64,20 +126,12 @@ module.exports = (env) ->
         @base.debug("request update!!")
         resolve()
 
-    #@TODO: remove this? I probably don't need it
-    _scheduleUpdate: (command, param="", immediate) ->
-      timeout=1500
-      if not @scheduledUpdates[@_mapZoneToObjectKey command]?
-        @base.debug "Scheduling update for zone #{@_mapZoneToObjectKey command}"
-        @scheduledUpdates[@_mapZoneToObjectKey command] = true
-        timeout=0 if immediate
-      else
-        @base.debug "Re-scheduling update for zone #{@_mapZoneToObjectKey command}"
-        @base.cancelUpdate()
-      @base.scheduleUpdate @_requestUpdate, timeout, command, param
-      return Promise.resolve()
-
-    sendRequest: (command, temp) =>
+    sendRequest: (command, value, type="switch") =>
       return new Promise (resolve, reject) =>
-        @zwave.setValue(command, temp)
+        @base.debug "Command:", command, "value: ", value
+        @zwave.setValue(command, value)
+
         resolve()
+
+    getDevices: () =>
+      return @deviceDiscovery

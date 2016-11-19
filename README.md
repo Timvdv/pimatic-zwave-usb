@@ -36,7 +36,7 @@ Example USB port for Windows '\\\\.\\COM3'
     {
       "plugin": "zwave-usb",
       "usb": "/dev/ttyUSB0",
-      "debug": true
+      "debug": false
     }
 ```
 
@@ -77,5 +77,5 @@ I suggest using auto-discovery but if you want to add it manually:
 ## Support more devices
 In the future I definitely want to support more devices.
 I only have two ZWave devices at the moment, If you want me to implement more devices
-you can donate them. Just send me a message. You can also extend my plugin yourself,
+you can donate them. Just send me a message on the Pimatic forum. You can also extend the plugin yourself,
 just create a pull request!

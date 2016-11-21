@@ -11,13 +11,16 @@
     "zwave-plugin.coffee",
     "README.md",
     "zwave-plugin-config-schema.coffee",
+    "zwave-app-protocol.coffee",
+    "devices",
+    "README.md",
     "device-config-schema.coffee"
   ],
   "dependencies": {
     "openzwave-shared": "^1.2.0",
     "pimatic-plugin-commons": "^0.9.3"
   },
-  "version": "0.0.1",
+  "version": "0.0.2",
   "homepage": "http://timvandevathorst.nl",
   "private": false,
   "repository": {

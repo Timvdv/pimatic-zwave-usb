@@ -63,20 +63,13 @@ module.exports = (env) ->
         }
 
       @zwave.on "value added", (nodeid, commandclass, value) =>
-
         @nodes[nodeid]?.classes[commandclass] = value
-
         #@base.debug "node: ", @nodes[nodeid]
         #@base.debug "nodes: ", @nodes
       
-
       @zwave.on "value changed", (nodeid, commandclass, value) =>
-        
-        #this should probably handled in the device class -> always trigger response
-        switch parseInt(commandclass)
-          when 37 or 67
-            @_triggerResponse(value, nodeid)
-            @base.debug "custom: value changed: #{nodeid}, #{commandclass} value:", value
+        #@base.debug "changed: ", value
+        @_triggerResponse(value, nodeid)
 
         if @nodes[nodeid]?.ready
           for node in @nodes[nodeid]?.classes
@@ -87,7 +80,6 @@ module.exports = (env) ->
         if !nodeinfo
           return @base.debug "node: ", nodeid, " has no node information"
 
-        @base.debug "info: ", nodeinfo
         @nodes[nodeid] = {
           nodeid: nodeid
           manufacturer: nodeinfo.manufacturer
@@ -101,6 +93,8 @@ module.exports = (env) ->
           classes: @nodes[nodeid].classes
           ready: true
         }
+
+        @base.debug "info: ", nodeid
 
         for commandClass in @nodes[nodeid]?.classes
           @base.error "Commandclass: ",commandClass

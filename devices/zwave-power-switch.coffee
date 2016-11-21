@@ -33,7 +33,7 @@ module.exports = (env) ->
         _node = if @node is response.nodeid then response.nodeid else null
         data = response.zwave_response
 
-        if _node?
+        if _node? && data.class_id
           @_setState data.value
 
     changeStateTo: (newState) ->

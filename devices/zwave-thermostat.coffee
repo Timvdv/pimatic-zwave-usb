@@ -35,7 +35,6 @@ module.exports = (env) ->
 
         if _node?
           #Update the temperture
-          @_base.debug "data:", @_temperatureSetpoint, data.class_id
           @value_id = data.value_id
 
           if data.class_id is 67
@@ -54,7 +53,7 @@ module.exports = (env) ->
     _callbackHandler: () ->
       return (response) =>
         #@TODO: ???
-        console.log('what is this.. when does it happen?? (_callbackHandler in ZwaveThermostat)')
+        @_base.debug 'what is this.. when does it happen?? (_callbackHandler in ZwaveThermostat)'
 
     destroy: () ->
       @_base.cancelUpdate()

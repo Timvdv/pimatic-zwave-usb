@@ -11,11 +11,11 @@ module.exports = (env) ->
 
   deviceConfigTemplates = [
     {
-      "name": "ZWave-usb Thermostat",
+      "name": "ZWave-usb Thermostat"
       "class": "ZwaveThermostat"
     },
     {
-      "name": "ZWave-usb Power Switch",
+      "name": "ZWave-usb Power Switch"
       "class": "ZwavePowerSwitch"
     }
   ]

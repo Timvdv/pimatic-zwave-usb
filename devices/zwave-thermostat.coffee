@@ -68,6 +68,6 @@ module.exports = (env) ->
       else
         @_base.info "Please wake up ", @name, " device has no value_id yet"
 
-      return @_setSetpoint(parseInt(temperatureSetpoint))
+      return Promise.resolve(@_setSetpoint(parseInt(temperatureSetpoint)));
 
     getTemperature: -> Promise.resolve(@_temperatureSetpoint)

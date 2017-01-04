@@ -1,5 +1,4 @@
-# #my-plugin configuration options
-# Declare your config option for your plugin here.
+# coffeelint: disable=max_line_length
 module.exports = {
   title: "Options for pimatic zwave "
   type: "object"

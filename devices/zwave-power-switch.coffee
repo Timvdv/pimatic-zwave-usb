@@ -6,7 +6,6 @@ module.exports = (env) ->
   _ = env.require 'lodash'
   commons = require('pimatic-plugin-commons')(env)
 
-  # Device class representing the power switch of the Denon AVR
   class ZwavePowerSwitch extends env.devices.PowerSwitch
 
     constructor: (@config, @plugin, lastState) ->

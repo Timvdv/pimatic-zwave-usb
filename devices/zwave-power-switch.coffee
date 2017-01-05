@@ -1,7 +1,6 @@
 # coffeelint: disable=max_line_length
 
 module.exports = (env) ->
-
   Promise = env.require 'bluebird'
   _ = env.require 'lodash'
   commons = require('pimatic-plugin-commons')(env)

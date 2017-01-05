@@ -1,3 +1,4 @@
+# #pimatic-zwave-usb configuration options
 # coffeelint: disable=max_line_length
 module.exports = {
   title: "Options for pimatic zwave "

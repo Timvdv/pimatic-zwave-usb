@@ -22,8 +22,9 @@ module.exports = (env) ->
       @responseHandler = @_createResponseHandler()
       @plugin.protocolHandler.on 'response', @responseHandler
       
-      @_temperatureSetpoint = lastState?.temperatureSetpoint?.value
+      @_temperatureSetpoint = lastState?.temperatureSetpoint?.value or null
       @_battery = lastState?.battery?.value or "--"
+      @_valve = lastState?.valve?.value or null
       @_lastSendTime = 0
 
       super()
@@ -37,17 +38,17 @@ module.exports = (env) ->
           #Update the temperture
           @value_id = data.value_id
 
+          @_base.debug "Response", response
+
           if data.class_id is 67
-            @_base.debug "Response", response
             @_base.debug "update temperture", data.value
             @_setSetpoint(parseInt(data.value))
             @_setValve(parseInt(data.value) / 40 * 100) #40 == 100%
             @_setSynced(true)
 
           if data.class_id is 128
-            @_base.debug "Response", response
             @_base.debug "Update battery", data.value
-            battery_value = if parseInt(data.value) == 0 then 'LOW' else 'OK'
+            battery_value = if parseInt(data.value) < 5 then 'LOW' else 'OK'
             @_setBattery(battery_value)
 
     _callbackHandler: () ->
@@ -61,13 +62,15 @@ module.exports = (env) ->
       super()
 
     changeTemperatureTo: (temperatureSetpoint) =>
-      if @_temperatureSetpoint is temperatureSetpoint then return Promise.resolve()
+      return new Promise (resolve, reject) =>
+        if @_temperatureSetpoint is temperatureSetpoint then return Promise.resolve()
 
-      if(@value_id)
-        @plugin.protocolHandler.sendRequest({ value_id: @value_id, node_id: @node, class_id: 67, instance:1, index:1}, parseFloat(temperatureSetpoint).toFixed(2), "thermostat")
-      else
-        @_base.info "Please wake up ", @name, " device has no value_id yet"
+        if(@value_id)
+          @plugin.protocolHandler.sendRequest({ value_id: @value_id, node_id: @node, class_id: 67, instance:1, index:1}, parseFloat(temperatureSetpoint).toFixed(2), "thermostat")
+        else
+          @_base.info "Please wake up ", @name, " device has no value_id yet"
 
-      return Promise.resolve(@_setSetpoint(parseInt(temperatureSetpoint)));
+        @_setSetpoint(parseInt(temperatureSetpoint));
+        resolve()
 
     getTemperature: -> Promise.resolve(@_temperatureSetpoint)

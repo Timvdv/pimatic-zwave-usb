@@ -6,7 +6,7 @@ module.exports = (env) ->
   commons = require('pimatic-plugin-commons')(env)
 
   class ZwavePowerSwitch extends env.devices.PowerSwitch
-
+    
     constructor: (@config, @plugin, lastState) ->
       @_base = commons.base @, @config.class
       @debug = @plugin.debug || false

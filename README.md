@@ -65,6 +65,16 @@ I suggest using auto-discovery but if you want to add it manually:
     }
 ```
 
+## Note
+
+I kept getting the error `"libopenzwave.so.1.4" in the "/usr/local/lib64"`
+Searched for this on Google and found the following solution (I use Ubuntu 14.04 so not sure if this will work for every system):
+
+```
+  sudo ldconfig /usr/local/lib64
+```
+
+I automated this by adding `ldconfig /usr/local/lib64` to my Pimatic startup script.
 
 ## To-do
 - [x] PowerSwitch device

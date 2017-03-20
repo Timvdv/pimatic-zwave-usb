@@ -56,7 +56,7 @@ module.exports = (env) ->
           if data.class_id is 67
             @_base.debug "update temperture", data.value
             @_setSetpoint(parseInt(data.value))
-            @_setValve(parseInt(data.value) / 28 * 100) #40 == 100%
+            @_setValve(parseInt(data.value) / 28 * 100) #28 == 100%
             @_setSynced(true)
             @timestamp = (new Date()).getTime()
 

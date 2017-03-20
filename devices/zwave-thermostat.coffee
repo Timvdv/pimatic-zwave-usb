@@ -27,7 +27,21 @@ module.exports = (env) ->
       @_valve = lastState?.valve?.value or null
       @_lastSendTime = 0
 
+      @timestamp = (new Date()).getTime()
+
+      @setTimestampInterval()
       super()
+
+    timer: ->
+      current_time = (new Date()).getTime()
+      time_since_last_sync =  current_time - @timestamp
+      console.log time_since_last_sync
+      if time_since_last_sync > 1800000
+        @_setSynced(false)
+
+    setTimestampInterval: ->
+      cb = @timer.bind @
+      setInterval cb, 1800000
 
     _createResponseHandler: () ->
       return (response) =>
@@ -45,6 +59,7 @@ module.exports = (env) ->
             @_setSetpoint(parseInt(data.value))
             @_setValve(parseInt(data.value) / 28 * 100) #40 == 100%
             @_setSynced(true)
+            @timestamp = (new Date()).getTime()
 
           if data.class_id is 128
             @_base.debug "Update battery", data.value

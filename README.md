@@ -15,14 +15,18 @@ It has lots of README files which guide you through the installation process.
 
 ## Equipment
 You will also need a ZWave USB stick. I tested this with the [The Aeotec Z-Stick Gen5](http://aeotec.com/z-wave-usb-stick). I think other zwave sticks will also work.
+Tested also with a Z-wave plus USB stick Model name: ZU1401EU.
 
-I used a Danfoss LC13 and a power plug for testing the devices. 
-
+I used a Danfoss LC13 and a power plug for testing the devices.
+Implemented the door window sensor from devolo. This device has the contact sensor included, temperature sensor and lightness sensor.
 
 ## What can this plugin do?
 - Control Devices
     - Power switch _(class id: 32)_
     - Thermostat _(class id: 67)_
+    - Door/Window Sensor _(class id: 49)_
+      - contact and temperature support
+
 - Auto-discover ZWave devices
 
 View all [command classes](http://wiki.micasaverde.com/index.php/ZWave_Command_Classes)
@@ -64,6 +68,16 @@ I suggest using auto-discovery but if you want to add it manually:
       "class": "ZwavePowerSwitch"
     }
 ```
+
+### door window contact sensor
+...
+    {
+      "id": "zwave-window-sensor",
+      "name": "ZWave WindowSensor",
+      "node": 3,
+      "class": "ZwaveWindowSensor"
+    }
+...
 
 ## Note
 

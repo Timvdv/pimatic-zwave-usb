@@ -34,8 +34,7 @@ module.exports = (env) ->
 
     timer: ->
       current_time = (new Date()).getTime()
-      time_since_last_sync =  current_time - @timestamp
-      console.log time_since_last_sync
+      time_since_last_sync =  current_time - @timestamp      
       if time_since_last_sync > 1800000
         @_setSynced(false)
 

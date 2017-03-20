@@ -70,14 +70,14 @@ I suggest using auto-discovery but if you want to add it manually:
 ```
 
 ### door window contact sensor
-...
+```
     {
       "id": "zwave-window-sensor",
       "name": "ZWave WindowSensor",
       "node": 3,
       "class": "ZwaveWindowSensor"
     }
-...
+```
 
 ## Note
 

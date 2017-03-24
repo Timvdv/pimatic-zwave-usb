@@ -19,7 +19,7 @@ You will also need a ZWave USB stick.
 - Tested with a Z-wave plus USB stick Model name: ZU1401EU.
 I think other zwave sticks will also work.
 
-Tested Z-wave deviced
+Tested Z-Wave devices
 - Danfoss LC13
 - a power plug
 - Door/Window sensor from Devolo. This device has a contact sensor, temperature sensor and lightness sensor included.
@@ -28,7 +28,7 @@ Tested Z-wave deviced
 - Control Devices
     - Power switch _(class id: 32)_
     - Thermostat _(class id: 67)_
-    - Door/Window Sensor _(class id: 49)_
+    - Door/Window Sensor _(class id: 49)_ and _(class id: 48)_
       - contact and temperature support
 
 - Auto-discover ZWave devices

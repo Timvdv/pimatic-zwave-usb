@@ -48,6 +48,8 @@ Example USB port for Windows '\\\\.\\COM3'
 ## Device settings in Pimatic
 I suggest using auto-discovery but if you want to add it manually:
 
+For a thermostat or a window contact sensor its possible to configure a sync timeout. This means that in case the z-wave device didnt update his values in this timeframe (configured in minutes) then the device is not synced anymore with pimatic. 
+
 ### thermostat device
 ```
     {
@@ -55,6 +57,7 @@ I suggest using auto-discovery but if you want to add it manually:
       "name": "ZWave Thermostat",
       "node": 4,
       "class": "ZwaveThermostat"
+      "syncTimeout": 45
     }
 ```
 
@@ -76,6 +79,7 @@ I suggest using auto-discovery but if you want to add it manually:
       "name": "ZWave WindowSensor",
       "node": 3,
       "class": "ZwaveWindowSensor"
+      "syncTimeout": 45
     }
 ```
 

@@ -16,6 +16,10 @@ module.exports = {
         description: "Show the valve position in the gui"
         type: "boolean"
         default: true
+      syncTimeout:
+        description: "After this timeout the sync status is reset to false, in minutes"
+        type: "integer"
+        default: 0
   }
   ZwavePowerSwitch: {
     title: "ZWave powerswitch options"
@@ -33,6 +37,10 @@ module.exports = {
       node:
         description: "The zwave nodeid"
         type: "integer"
-        default: 0    
+        default: 0
+      syncTimeout:
+        description: "After this timeout the sync status is reset to false, in minutes"
+        type: "integer"
+        default: 0
   }
 }

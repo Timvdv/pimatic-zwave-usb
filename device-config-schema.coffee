@@ -33,22 +33,6 @@ module.exports = {
       node:
         description: "The zwave nodeid"
         type: "integer"
-        default: 0
-      contact:
-        description: "state of the contact"
-        type: "boolean"
-      synced:
-        description: "Pimatic and thermostat in sync"
-        type: "boolean"
-      battery:
-        description: "Battery status"
-        type: "string"
-        enum: ["ok", "low"]
-      temperature:
-        label: "Temperature"
-        description: "The temperature messarrured"
-        type: "number"
-        discrete: true
-        unit: "°C"
+        default: 0    
   }
 }

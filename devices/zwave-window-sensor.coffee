@@ -20,6 +20,13 @@ module.exports = (env) ->
       @_contact = lastState?.concact?.value or false
       @_temperature = lastState?.temperature?.value or null
       @_battery = lastState?.battery?.value or "--"
+
+      @syncTimeoutTime = @config.syncTimeout * 1000 * 60
+
+      if @syncTimeoutTime > 0
+        @timestamp = (new Date()).getTime()
+        @setTimestampInterval()
+
       super()
 
     attributes:
@@ -44,6 +51,16 @@ module.exports = (env) ->
     getTemperature: () -> Promise.resolve(@_temperature)
     getBattery: () -> Promise.resolve(@_battery)
     getSynced: () -> Promise.resolve(@_synced)
+
+    timer: ->
+      current_time = (new Date()).getTime()
+      time_since_last_sync =  current_time - @timestamp
+      if time_since_last_sync > @syncTimeoutTime
+        @_setSynced(false)
+
+    setTimestampInterval: ->
+      cb = @timer.bind @
+      setInterval cb, @syncTimeoutTime
 
     _setSynced: (synced) ->
       if synced is @_synced then return
@@ -83,7 +100,8 @@ module.exports = (env) ->
             division = 5 / 9
             temp = (parseInt(data.value) - 32) * division
             temp = Math.round(temp * 100) / 100
-            @_setTemperature(temp)            
+            @timestamp = (new Date()).getTime()
+            @_setTemperature(temp)
             @_setSynced(true)
 
           if data.class_id is 48

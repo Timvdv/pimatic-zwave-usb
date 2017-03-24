@@ -18,16 +18,31 @@ module.exports = (env) ->
 
       @_mode = "auto"
       @_setSynced(false)
-      
+
       @responseHandler = @_createResponseHandler()
       @plugin.protocolHandler.on 'response', @responseHandler
-      
+
       @_temperatureSetpoint = lastState?.temperatureSetpoint?.value or null
       @_battery = lastState?.battery?.value or "--"
       @_valve = lastState?.valve?.value or null
       @_lastSendTime = 0
+      @syncTimeoutTime = @config.syncTimeout * 1000 * 60
+
+      if @syncTimeoutTime > 0
+        @timestamp = (new Date()).getTime()
+        @setTimestampInterval()
 
       super()
+
+    timer: ->
+      current_time = (new Date()).getTime()
+      time_since_last_sync =  current_time - @timestamp
+      if time_since_last_sync > @syncTimeoutTime
+        @_setSynced(false)
+
+    setTimestampInterval: ->
+      cb = @timer.bind @
+      setInterval cb, @syncTimeoutTime
 
     _createResponseHandler: () ->
       return (response) =>
@@ -45,6 +60,7 @@ module.exports = (env) ->
             @_setSetpoint(parseInt(data.value))
             @_setValve(parseInt(data.value) / 28 * 100) #28 == 100%
             @_setSynced(true)
+            @timestamp = (new Date()).getTime()
 
           if data.class_id is 128
             @_base.debug "Update battery", data.value

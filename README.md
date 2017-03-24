@@ -14,17 +14,21 @@ It has lots of README files which guide you through the installation process.
 
 
 ## Equipment
-You will also need a ZWave USB stick. I tested this with the [The Aeotec Z-Stick Gen5](http://aeotec.com/z-wave-usb-stick). I think other zwave sticks will also work.
-Tested also with a Z-wave plus USB stick Model name: ZU1401EU.
+You will also need a ZWave USB stick.
+- Tested with the [The Aeotec Z-Stick Gen5](http://aeotec.com/z-wave-usb-stick).
+- Tested with a Z-wave plus USB stick Model name: ZU1401EU.
+I think other zwave sticks will also work.
 
-I used a Danfoss LC13 and a power plug for testing the devices.
-Implemented the door window sensor from devolo. This device has the contact sensor included, temperature sensor and lightness sensor.
+Tested Z-Wave devices
+- Danfoss LC13
+- a power plug
+- Door/Window sensor from Devolo. This device has a contact sensor, temperature sensor and lightness sensor included.
 
 ## What can this plugin do?
 - Control Devices
     - Power switch _(class id: 32)_
     - Thermostat _(class id: 67)_
-    - Door/Window Sensor _(class id: 49)_
+    - Door/Window Sensor _(class id: 49)_ and _(class id: 48)_
       - contact and temperature support
 
 - Auto-discover ZWave devices
@@ -48,6 +52,8 @@ Example USB port for Windows '\\\\.\\COM3'
 ## Device settings in Pimatic
 I suggest using auto-discovery but if you want to add it manually:
 
+For a thermostat or a window contact sensor its possible to configure a sync timeout. This means that in case the z-wave device didnt update his values in this timeframe (configured in minutes) then the device is not synced anymore with pimatic.
+
 ### thermostat device
 ```
     {
@@ -55,6 +61,7 @@ I suggest using auto-discovery but if you want to add it manually:
       "name": "ZWave Thermostat",
       "node": 4,
       "class": "ZwaveThermostat"
+      "syncTimeout": 45
     }
 ```
 
@@ -76,6 +83,7 @@ I suggest using auto-discovery but if you want to add it manually:
       "name": "ZWave WindowSensor",
       "node": 3,
       "class": "ZwaveWindowSensor"
+      "syncTimeout": 45
     }
 ```
 

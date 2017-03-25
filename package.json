@@ -25,7 +25,7 @@
   "private": false,
   "repository": {
     "type": "git",
-    "url": "git://github.com/Timvdv/pimatic-zwave.git"
+    "url": "git://github.com/Timvdv/pimatic-zwave-usb.git"
   },
   "configSchema": "zwave-plugin-config-schema.coffee",
   "peerDependencies": {

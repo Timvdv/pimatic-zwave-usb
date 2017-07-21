@@ -104,6 +104,7 @@ I automated this by adding `ldconfig /usr/local/lib64` to my Pimatic startup scr
 - [x] Automatic device discovery
 - [ ] Include/Exclude devices with Software
 - [ ] Reset Z-wave network / Heal Z-wave network
+- [ ] Add multi level switch (SWITCH_MULTILEVEL) request: https://forum.pimatic.org/topic/2508/pimatic-zwave-usb-another-way-to-control-z-wave-devices
 
 
 ## Support more devices

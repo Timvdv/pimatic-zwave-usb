@@ -38,6 +38,8 @@ module.exports = (env) ->
 
     changeDimlevelTo: (newLevel) ->
       return new Promise (resolve, reject) =>
+        if newLevel >99
+          newLevel = 99
         @plugin.protocolHandler.sendRequest({ node_id: @node, class_id: 38, instance:1, index:0}, newLevel)
         @_setDimlevel newLevel
         resolve()

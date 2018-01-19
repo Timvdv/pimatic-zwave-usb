@@ -17,10 +17,10 @@
     "device-config-schema.coffee"
   ],
   "dependencies": {
-    "openzwave-shared": "1.2.3",
+    "openzwave-shared": ">1.2.3",
     "pimatic-plugin-commons": "^0.9.3"
   },
-  "version": "0.0.9",
+  "version": "0.0.10",
   "homepage": "http://timvandevathorst.nl",
   "private": false,
   "repository": {

@@ -43,4 +43,28 @@ module.exports = {
         type: "integer"
         default: 0
   }
+  ZwaveNetworkCommands: {
+    title: "Z-wave network commands"
+    description: "Some settings to heal your zwave network"
+    type: "object"
+    extensions: ["xLink", "xOnLabel", "xOffLabel"]
+    properties:
+      buttons:
+        description: "The inputs to select from"
+        type: "array"
+        default: [
+          {
+            id: "HEAL"
+          }
+          {
+            id: "ADD"
+          }
+          {
+            id: "DELETE"
+          }
+          {
+            id: "RESET"
+          }
+        ]
+  }
 }

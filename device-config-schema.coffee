@@ -30,6 +30,15 @@ module.exports = {
         type: "integer"
         default: 0
   }
+  ZwaveDimmer: {
+    title: "ZWave dimmer options"
+    type: "object"
+    properties:
+      node:
+        description: "The zwave nodeid"
+        type: "integer"
+        default: 0
+  }
   ZwaveWindowSensor: {
     title: "ZWave window sensor options"
     type: "object"

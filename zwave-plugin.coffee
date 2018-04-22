@@ -72,6 +72,9 @@ module.exports = (env) ->
 
             if device?.classes["67"]
               deviceClass = "ZwaveThermostat"
+              
+            if device?.classes["38"]
+              deviceClass = "ZwaveDimmer"
 
             config = {
               id: id

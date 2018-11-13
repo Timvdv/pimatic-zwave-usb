@@ -19,6 +19,10 @@ module.exports = (env) ->
       "class": "ZwavePowerSwitch"
     },
     {
+      "name": "ZWave-usb Power Switch Neo"
+      "class": "ZwavePowerSwitchNeo"
+    },
+    {
       "name": "ZWave-usb Window Sensor"
       "class": "ZwaveWindowSensor"
     },
@@ -40,7 +44,7 @@ module.exports = (env) ->
           
         # convert camel-case classname to kebap-case filename
         filename = className.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()
-
+        @base.debug "filename: ", filename
         classType = require('./devices/' + filename)(env)
 
         @base.debug "Registering device class #{className}"

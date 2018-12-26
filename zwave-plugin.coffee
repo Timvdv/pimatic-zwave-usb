@@ -56,6 +56,7 @@ module.exports = (env) ->
         @base.debug "Eventdata:", eventData
         @base.debug "devices: ", @protocolHandler.getDevices()
 
+        @protocolHandler.addNodes()
         for device in @protocolHandler.getDevices()
 
           #If the device is already added: don't show

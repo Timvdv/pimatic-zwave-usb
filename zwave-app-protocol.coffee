@@ -21,7 +21,7 @@ module.exports = (env) ->
 
       @nodes = []
       @deviceDiscovery = []
-      
+
       @zwave = new ZWave({
         ConsoleOutput: @debug
       })
@@ -66,7 +66,7 @@ module.exports = (env) ->
         @nodes[nodeid]?.classes[commandclass] = value
         #@base.debug "node: ", @nodes[nodeid]
         #@base.debug "nodes: ", @nodes
-      
+
       @zwave.on "value changed", (nodeid, commandclass, value) =>
         #@base.debug "changed: ", value
         @_triggerResponse(value, nodeid)
@@ -127,5 +127,10 @@ module.exports = (env) ->
 
         resolve()
 
+    addNodes: () =>
+      return new Promise (resolve, reject) =>
+        @zwave.addNode(false)
+        resolve()
+        
     getDevices: () =>
       return @deviceDiscovery
